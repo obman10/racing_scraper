@@ -2,12 +2,14 @@ import requests
 from requests import Request, Session
 import json
 import time
+from datetime import timedelta, date
+
 
 header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
 param = {'jurisdiction': 'VIC'}
 
 def driver():
-    meets = getMeets()
+    """meets = getMeets()
     for meet in meets:
         print(meet)
         #print(meet.keys())
@@ -15,7 +17,36 @@ def driver():
         if '_links' in meet.keys():
             print(meet['_links'])
             print(meet['_links']['races'])
-            getRaceInfo(meet)
+            getRaceInfo(meet)"""
+    log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
+    log_file.writelines("Beginning the scrape!\n")
+    for single_date in [date.today()-timedelta(x) for x in range(15)]:
+        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_'+single_date.isoformat()+'.txt', 'w')
+        log_file.writelines(single_date.isoformat()+'\n')
+        r = requests.get('https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/'+single_date.isoformat(),param)
+        if 'meetings' in json.loads(r.text).keys():
+            for item in json.loads(r.text)['meetings']:
+                print(item)
+                info_packet = {'date': item['meetingDate'], 'meetingName': item['meetingName']}
+                for race in item['races']:
+                    print(race)
+                    if 'raceNumber' in race.keys():
+                        raceNo = str(race['raceNumber'])
+                        info_packet[raceNo] = {'headline': race, 'races': {}}
+                        if '_links' in race.keys():
+                            r = requests.get(race['_links']['self'], param)
+                            results = json.loads(r.text)
+                            if 'raceNumber' in results.keys():
+                                info_packet[raceNo]['races'][results['raceNumber']] = results
+                            else:
+                                info_packet[raceNo]['races'][results['raceNumber']] = 'No results found'
+                                log_file.writelines('There was no data found on ' + single_date.isoformat() + ' for race ' + race['_links'])
+                test_file.write(json.dumps(info_packet, sort_keys=True, indent=4)+',')
+                    #readRace(race)
+        test_file.close()
+    log_file.close()
+
+
 
 
 def getMeets():
@@ -38,5 +69,12 @@ def getRaceInfo(race):
         r = requests.get(race['_links']['races'].split('?')[0]+'/'+str((num+1)), param)
         print(json.loads(r.text))
     return
+
+def readRace(race):
+    if '_links' in race.keys():
+        r = requests.get(race['_links']['self'], param)
+        results = json.loads(r.text)
+        print(results)
+        print(results.keys())
 
 driver()
