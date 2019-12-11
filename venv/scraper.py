@@ -4,9 +4,10 @@ import json
 import time
 from datetime import timedelta, date
 
-
-header = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
+header = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
 param = {'jurisdiction': 'VIC'}
+
 
 def driver():
     """meets = getMeets()
@@ -20,12 +21,20 @@ def driver():
             getRaceInfo(meet)"""
     log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today()-timedelta(x) for x in range(15)]:
-        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_'+single_date.isoformat()+'.txt', 'w')
-        log_file.writelines(single_date.isoformat()+'\n')
-        r = requests.get('https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/'+single_date.isoformat(),param)
+    for single_date in [date.today() - timedelta(x) for x in range(15)]:
+        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
+                         'w')
+        first_flag = False
+        log_file.writelines(single_date.isoformat() + '\n')
+        r = requests.get(
+            'https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/' + single_date.isoformat(), param)
         if 'meetings' in json.loads(r.text).keys():
             for item in json.loads(r.text)['meetings']:
+                if first_flag:
+                    test_file.write(',')
+                else:
+                    test_file.write('[')
+                    first_flag = True
                 print(item)
                 info_packet = {'date': item['meetingDate'], 'meetingName': item['meetingName']}
                 for race in item['races']:
@@ -40,21 +49,22 @@ def driver():
                                 info_packet[raceNo]['races'][results['raceNumber']] = results
                             else:
                                 info_packet[raceNo]['races'][results['raceNumber']] = 'No results found'
-                                log_file.writelines('There was no data found on ' + single_date.isoformat() + ' for race ' + race['_links'])
-                test_file.write(json.dumps(info_packet, sort_keys=True, indent=4)+',')
-                    #readRace(race)
+                                log_file.writelines(
+                                    'There was no data found on ' + single_date.isoformat() + ' for race ' + race[
+                                        '_links'])
+                test_file.write(json.dumps(info_packet, sort_keys=True, indent=4))
+                # readRace(race)
+        test_file.write(']')
         test_file.close()
     log_file.close()
-
-
 
 
 def getMeets():
     meets = []
     cache = {'jurisdiction': 'VIC'}
     r = requests.get('https://api.beta.tab.com.au/v1/tab-info-service/racing/dates', cache)
-    #print(r.url)
-    #print(json.loads(r.text))
+    # print(r.url)
+    # print(json.loads(r.text))
     for item in json.loads(r.text)['dates']:
         print(item)
         rn = requests.get(item['_links']['meetings'])
@@ -64,11 +74,13 @@ def getMeets():
             meets.append(unit)
     return meets
 
+
 def getRaceInfo(race):
     for num in range(len(race['races'])):
-        r = requests.get(race['_links']['races'].split('?')[0]+'/'+str((num+1)), param)
+        r = requests.get(race['_links']['races'].split('?')[0] + '/' + str((num + 1)), param)
         print(json.loads(r.text))
     return
+
 
 def readRace(race):
     if '_links' in race.keys():
@@ -76,5 +88,6 @@ def readRace(race):
         results = json.loads(r.text)
         print(results)
         print(results.keys())
+
 
 driver()
