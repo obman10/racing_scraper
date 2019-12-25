@@ -5,7 +5,7 @@ print('D:/PycharmProjects/racing_scraper/venv/historical_data_' + (date.today() 
 test_file = open(
     'D:/PycharmProjects/racing_scraper/venv/historical_data_' + (date.today() - timedelta(3)).isoformat() + '.txt', 'r')
 for dict in json.load(test_file):
-    if dict['meetingName'] == 'NOWRA':
+    if dict['meetingName'] == 'TAREE':
         #Gets the largest number in the key list (AKA number of races)
         print(int(max(filter(str.isnumeric, (dict.keys())))))
         for num in range(1,int(max(filter(str.isnumeric, (dict.keys()))))+1):
@@ -14,7 +14,7 @@ for dict in json.load(test_file):
             print(new_dict.keys())
             print(new_dict['races'][str(num)]['runners'])
             for horse in new_dict['races'][str(num)]['runners']:
-                print(horse['runnerNumber'])
+                print(str(horse['runnerNumber']) + ' ' + horse['runnerName'])
                 print(horse['parimutuel']['returnWin'])
                 print(horse['fixedOdds']['returnWin'])
 

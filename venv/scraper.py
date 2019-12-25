@@ -22,12 +22,23 @@ def driver():
     log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
     for single_date in [date.today() - timedelta(x) for x in range(15)]:
-        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
-                         'w')
+        #The try catch will exclude files that already exist
+        try:
+            f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
+            print("The file already exists")
+            f.close()
+            break
+        except IOError:
+            print("File not existing")
         first_flag = False
-        log_file.writelines(single_date.isoformat() + '\n')
         r = requests.get(
             'https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/' + single_date.isoformat(), param)
+        print(r.status_code)
+        if r.status_code == 404:
+            continue
+        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
+                             'w')
+        log_file.writelines(single_date.isoformat() + '\n')
         if 'meetings' in json.loads(r.text).keys():
             for item in json.loads(r.text)['meetings']:
                 if first_flag:
