@@ -22,7 +22,7 @@ def driver():
     log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
     for single_date in [date.today() - timedelta(x) for x in range(15)]:
-        #The try catch will exclude files that already exist
+        # The try catch will exclude files that already exist
         try:
             f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
             print("The file already exists")
@@ -37,7 +37,7 @@ def driver():
         if r.status_code == 404:
             continue
         test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
-                             'w')
+                         'w')
         log_file.writelines(single_date.isoformat() + '\n')
         if 'meetings' in json.loads(r.text).keys():
             for item in json.loads(r.text)['meetings']:
@@ -69,6 +69,8 @@ def driver():
         test_file.close()
     log_file.close()
 
+
+# Here we have redundant functions
 
 def getMeets():
     meets = []
