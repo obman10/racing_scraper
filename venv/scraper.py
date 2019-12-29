@@ -23,13 +23,13 @@ def driver():
     log_file.writelines("Beginning the scrape!\n")
     for single_date in [date.today() - timedelta(x) for x in range(15)]:
         # The try catch will exclude files that already exist
-        try:
-            f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
-            print("The file already exists")
-            f.close()
-            break
-        except IOError:
-            print("File not existing")
+        #try:
+        #    f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
+        #    print("The file already exists")
+        #    f.close()
+        #    break
+        #except IOError:
+        #    print("File not existing")
         first_flag = False
         r = requests.get(
             'https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/' + single_date.isoformat(), param)
