@@ -21,15 +21,15 @@ def driver():
             getRaceInfo(meet)"""
     log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today() - timedelta(x) for x in range(150)]:
+    for single_date in [date.today() - timedelta(x) for x in range(160)]:
         # The try catch will exclude files that already exist
-        """try:
+        try:
             f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
             print("The file already exists")
             f.close()
-            break
+            continue
         except IOError:
-            print("File not existing")"""
+            print("File not existing")
         first_flag = False
         r = requests.get(
             'https://api.beta.tab.com.au/v1/historical-results-service/NSW/racing/' + single_date.isoformat(), param)
