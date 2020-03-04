@@ -75,20 +75,21 @@ def buildBonus(location, race_no, date, amount):
 
 
 log_file = open(
-    'D:/PycharmProjects/racing_scraper/venv/data_dump_' + date.today().isoformat() + '.txt',
+    'C:/Users/chris/PycharmProjects/racing_scraper/venv/data_dump_' + date.today().isoformat() + '.txt',
     'w')
 total_winnings = 0.0
 total_wagerCount = 0
 total_races = 0
 total_wagerAmt = 0.0
 
-for i in range(1, 160):
+for i in range(1, 90):
     print(
-        'D:/PycharmProjects/racing_scraper/venv/historical_data_' + (date.today() - timedelta(i)).isoformat() + '.txt')
+        'C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + (
+                    date.today() - timedelta(i)).isoformat() + '.txt')
     try:
         test_file = open(
-            'D:/PycharmProjects/racing_scraper/venv/historical_data_' + (
-                        date.today() - timedelta(i)).isoformat() + '.txt',
+            'C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + (
+                    date.today() - timedelta(i)).isoformat() + '.txt',
             'r')
     except FileNotFoundError:
         continue
@@ -107,6 +108,7 @@ for i in range(1, 160):
                 print(item)
             for raceNo in filter(str.isnumeric,
                                  (meeting.keys())):  # range(1, int(max(filter(str.isnumeric, (meeting.keys())))) + 1):
+                racebonusbets = []
                 if int(raceNo) > 3:
                     continue
                 print(meeting[str(raceNo)])
@@ -122,7 +124,7 @@ for i in range(1, 160):
                 if raceMeet['races'][str(raceNo)]['hasFixedOdds'] == 'False':
                     print("Race number " + str(raceNo) + " has no fixed odds")
                     continue
-                total_races += 1;
+                total_races += 1
                 scratchings = []
                 for item in raceMeet['races'][str(raceNo)]['scratchings']:
                     scratchings.append(item['runnerNumber'])
@@ -153,14 +155,16 @@ for i in range(1, 160):
                 print(runners[0]['runnerNumber'])
                 print(raceMeet['races'][str(raceNo)])
                 # Places cash bets
-                if bonusBets:
-                    print(bonusBets)
-                    currentBB = bonusBets.pop(0)
-                    wager = place_bet(runners[0], currentBB[3], raceMeet['races'][str(raceNo)], True)
-                    if wager[1] == 'W':
-                        walletBalance += wager[0]
                 while totalWageredAmt < projWin and runners:
                     print(runners)
+                    #Place bonusbets
+                    if bonusBets:
+                        print(bonusBets)
+                        currentBB = bonusBets.pop(0)
+                        wager = place_bet(runners[0], currentBB[3], raceMeet['races'][str(raceNo)], True)
+                        if wager[1] == 'W':
+                            walletBalance += wager[0]
+                            totalWinnings += wager[0]
                     wager = calculate_wager(projWin, odds_return(runners[0]))
                     print(wager)
                     walletBalance -= wager
@@ -175,7 +179,7 @@ for i in range(1, 160):
                     elif wager[1] == 'P':
                         # Promos tend to be first few races
                         if int(raceNo) < 4:
-                            bonusBets.append(buildBonus(meeting['meetingName'], raceNo, meeting['date'], wager[0]))
+                            racebonusbets.append(buildBonus(meeting['meetingName'], raceNo, meeting['date'], wager[0]))
                     print(walletBalance)
                 print('Total number of Bonus Bets is ' + str(len(bonusBets)))
                 print(bonusBets)
@@ -184,10 +188,11 @@ for i in range(1, 160):
                 print("The total wagers is " + str(wagerCount))
                 print("The total winnings is " + str(totalWinnings))
                 daily_wagerAmt += totalWageredAmt
-    log_file.writelines(str(date.today() - timedelta(i))+'\n')
-    log_file.writelines("My wallet balance is " + str(walletBalance)+'\n')
-    log_file.writelines("The total wagers is " + str(wagerCount)+'\n')
-    log_file.writelines("The total winnings is " + str(totalWinnings)+'\n')
+                bonusBets += racebonusbets
+    log_file.writelines(str(date.today() - timedelta(i)) + '\n')
+    log_file.writelines("My wallet balance is " + str(walletBalance) + '\n')
+    log_file.writelines("The total wagers is " + str(wagerCount) + '\n')
+    log_file.writelines("The total winnings is " + str(totalWinnings) + '\n')
     total_winnings += totalWinnings
     total_wagerCount += wagerCount
     total_wagerAmt += daily_wagerAmt

@@ -19,12 +19,12 @@ def driver():
             print(meet['_links'])
             print(meet['_links']['races'])
             getRaceInfo(meet)"""
-    log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
+    log_file = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today() - timedelta(x) for x in range(160)]:
+    for single_date in [date.today() - timedelta(x) for x in range(90)]:
         # The try catch will exclude files that already exist
         try:
-            f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
+            f = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
             print("The file already exists")
             f.close()
             continue
@@ -36,7 +36,7 @@ def driver():
         print(r.status_code)
         if r.status_code == 404:
             continue
-        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
+        test_file = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
                          'w')
         log_file.writelines(single_date.isoformat() + '\n')
         if 'meetings' in json.loads(r.text).keys():
