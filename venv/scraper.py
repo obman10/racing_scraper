@@ -19,15 +19,15 @@ def driver():
             print(meet['_links'])
             print(meet['_links']['races'])
             getRaceInfo(meet)"""
-    log_file = open('D:/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
+    log_file = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today() - timedelta(x) for x in range(15)]:
-        #The try catch will exclude files that already exist
+    for single_date in [date.today() - timedelta(x) for x in range(90)]:
+        # The try catch will exclude files that already exist
         try:
-            f = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
+            f = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
             print("The file already exists")
             f.close()
-            break
+            continue
         except IOError:
             print("File not existing")
         first_flag = False
@@ -36,8 +36,8 @@ def driver():
         print(r.status_code)
         if r.status_code == 404:
             continue
-        test_file = open('D:/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
-                             'w')
+        test_file = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt',
+                         'w')
         log_file.writelines(single_date.isoformat() + '\n')
         if 'meetings' in json.loads(r.text).keys():
             for item in json.loads(r.text)['meetings']:
@@ -55,6 +55,7 @@ def driver():
                         info_packet[raceNo] = {'headline': race, 'races': {}}
                         if '_links' in race.keys():
                             r = requests.get(race['_links']['self'], param)
+                            print(r)
                             results = json.loads(r.text)
                             if 'raceNumber' in results.keys():
                                 info_packet[raceNo]['races'][results['raceNumber']] = results
@@ -69,6 +70,8 @@ def driver():
         test_file.close()
     log_file.close()
 
+
+# Here we have redundant functions
 
 def getMeets():
     meets = []
