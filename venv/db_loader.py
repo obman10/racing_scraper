@@ -5,7 +5,7 @@ the_file = open("C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_d
 file = json.load(the_file)
 mydb= mysql.connector.connect(host="localhost",
                               user="chris",
-                              passwd="Th30bs00@",
+                              passwd="",
                               database="racing")
 meetingCursor = mydb.cursor()
 add_meeting =   ("INSERT INTO meeting " 
