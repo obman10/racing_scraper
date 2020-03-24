@@ -21,7 +21,7 @@ def driver():
             getRaceInfo(meet)"""
     log_file = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today() - timedelta(x) for x in range(90)]:
+    for single_date in [date.today() - timedelta(x) for x in range(460)]:
         # The try catch will exclude files that already exist
         try:
             f = open('C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + single_date.isoformat() + '.txt', 'r')
@@ -56,6 +56,11 @@ def driver():
                         if '_links' in race.keys():
                             r = requests.get(race['_links']['self'], param)
                             print(r)
+                            if r.status_code == 404:
+                                print(404)
+                                log_file.writelines(race['_links']['self'])
+                                log_file.writelines(param)
+                                continue
                             results = json.loads(r.text)
                             if 'raceNumber' in results.keys():
                                 info_packet[raceNo]['races'][results['raceNumber']] = results

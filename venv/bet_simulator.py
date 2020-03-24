@@ -1,7 +1,7 @@
 import json
 from datetime import timedelta, date
 
-
+total_wallet = 100.0
 # Helper Function returns the odds of a specific horse
 # TODO: Improve to maybe aggregate odds
 def odds_return(horse):
@@ -82,7 +82,7 @@ total_wagerCount = 0
 total_races = 0
 total_wagerAmt = 0.0
 
-for i in range(1, 90):
+for i in range(1, 280):
     print(
         'C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + (
                     date.today() - timedelta(i)).isoformat() + '.txt')
@@ -154,6 +154,8 @@ for i in range(1, 90):
                     "The projected winning is " + str(projWin) + " on horse number " + str(runners[0]['runnerNumber']))
                 print(runners[0]['runnerNumber'])
                 print(raceMeet['races'][str(raceNo)])
+                # Only the first wager is eligible for a Bonus Bet
+                firstwager = 0
                 # Places cash bets
                 while totalWageredAmt < projWin and runners:
                     print(runners)
@@ -178,9 +180,10 @@ for i in range(1, 90):
                         totalWinnings += wager[0]
                     elif wager[1] == 'P':
                         # Promos tend to be first few races
-                        if int(raceNo) < 4:
+                        if int(raceNo) < 4 and firstwager == 0:
                             racebonusbets.append(buildBonus(meeting['meetingName'], raceNo, meeting['date'], wager[0]))
                     print(walletBalance)
+                    firstwager = 1
                 print('Total number of Bonus Bets is ' + str(len(bonusBets)))
                 print(bonusBets)
                 print(len(bonusBets))
@@ -196,7 +199,9 @@ for i in range(1, 90):
     total_winnings += totalWinnings
     total_wagerCount += wagerCount
     total_wagerAmt += daily_wagerAmt
+    total_wallet += (walletBalance-100.0)
 print(total_winnings)
 print(total_wagerCount)
 print(total_wagerAmt)
 print(total_races)
+print(total_wallet)
