@@ -75,6 +75,9 @@ def racesloader(input_file, database_conn):
                         "WHERE date = %s "
                         "AND meetingName = %s "
                         "AND meetingType = %s ")
+    add_race = ("INSERT INTO races "
+                   "(date, meetingName, meetingType) "
+                   "VALUES (%s, %s, %s)")
     for meeting in input_file:
         race_date = meeting["date"]
         race_meet = meeting["meetingName"]
