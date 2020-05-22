@@ -75,7 +75,7 @@ def buildBonus(location, race_no, date, amount):
 
 
 log_file = open(
-    'C:/Users/chris/PycharmProjects/racing_scraper/venv/data_dump_' + date.today().isoformat() + '.txt',
+    'data_dump_' + date.today().isoformat() + '.txt',
     'w')
 total_winnings = 0.0
 total_wagerCount = 0
@@ -84,11 +84,11 @@ total_wagerAmt = 0.0
 
 for i in range(1, 280):
     print(
-        'C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + (
+        'Scraped_Data/historical_data_' + (
                     date.today() - timedelta(i)).isoformat() + '.txt')
     try:
         test_file = open(
-            'C:/Users/chris/PycharmProjects/racing_scraper/venv/historical_data_' + (
+            'Scraped_Data/historical_data_' + (
                     date.today() - timedelta(i)).isoformat() + '.txt',
             'r')
     except FileNotFoundError:
