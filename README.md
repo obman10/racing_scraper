@@ -15,8 +15,11 @@ This was where I got to test some of the optimisation strategies that I struggle
 Main problem: Strategy depended on data I didn't have.
 Chosen Solution: Build a database and a front end so I can add my own information.
 
-## Current Stage
 ### Stage Three: Construct a database. 
 Using the MySQL connector and MySQL I built out a database slowly, starting with a mess of many to many relationships and slowly resolving them. 
 Main Problem: Data format for scraped data is quite difficult to work with/
 Chosen Solution: Just iterate over the poor data and insert it into the tables. This needs a refactor before I move onto collecting extra data.
+
+## Current Stage
+### Stage Four: Collect future information.
+Using the database constructors designed in stage 3, poll TAB to find new races and query to keep track of live odds. 
