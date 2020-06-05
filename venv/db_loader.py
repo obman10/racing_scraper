@@ -62,14 +62,16 @@ def raceBuilder():
 
 # Build a proposition
 def construct_proposition(id_tuple, runner, database_conn, scratches):
-    jockey = {"jockeyFirstName": runner["riderDriverName"].split(' ')[0],
-              "jockeyLastName": runner["riderDriverName"].split(' ')[-1],
-              "jockeyOtherName": None}
+    prop_cursor = database_conn.cursor()
+    #jockey = {"jockeyFirstName": runner["riderDriverName"].split(' ')[0],
+    #          "jockeyLastName": runner["riderDriverName"].split(' ')[-1],
+    #          "jockeyOtherName": None}
     select_proposition = ("SELECT propositionID FROM proposition "
                           "WHERE race_runnerID = %s "
                           "AND bookieID = %s "
                           "AND oddsType = %s ")
     prop_list = []
+    prop_id = None
     # Can be expanded later to include exotics
     translator = {"fixedOdds" : "Fixed", "parimutuel" : "Parimutuel"}
     # Build a proposition for both the tote and the fixed
@@ -83,10 +85,17 @@ def construct_proposition(id_tuple, runner, database_conn, scratches):
             except KeyError:
                 print("We had some error with no results in the odds section")
                 print(proposition)
-            prop_list.append(tuple(proposition.values()))
-            print(proposition.values())
+            prop_cursor.execute(select_proposition, (proposition["race_runnerID"], proposition["bookieID"], translator[oddsType]))
+            for db_return in prop_cursor:
+                print(db_return)
+                prop_id = db_return[0]
+            if not prop_id:
+                prop_list.append(tuple(proposition.values()))
+                print(proposition.values())
+            else:
+                print(prop_id, "No id needed.")
 
-    # First we need to know the race_runerID
+    # First we need to know the race_runnerID
     # This requires us to build a race_runner
     return prop_list
 
@@ -101,7 +110,9 @@ def race_runner_loader(db_connection, race_id, runner, scratches):
                     "WHERE raceID = %s "
                     "AND jockeyID = %s "
                     "AND horseID = %s ")
-    jockey_id = jockey_loader(db_connection, {"jockeyFirstName": runner["riderDriverName"].split(' ')[0],
+    jockey_id = None
+    if runner["riderDriverName"]:
+        jockey_id = jockey_loader(db_connection, {"jockeyFirstName": runner["riderDriverName"].split(' ')[0],
               "jockeyLastName": runner["riderDriverName"].split(' ')[-1]})
     horse_id = horse_loader(db_connection, {"horseName" : runner["runnerName"], "trainerName" : runner["trainerName"]})
     race_runner = {"raceID" : race_id, "jockeyID" : jockey_id, "horseID" : horse_id, "barrierNumber" : runner["barrierNumber"], "finishingPosition" : runner["finishingPosition"], "runnerNumber" : runner["runnerNumber"], "scratched" : False}
@@ -273,28 +284,28 @@ def propositionloader(input_file, database_conn):
     proposition_list = []
 
     for meeting in input_file:
-        print(meeting)
+        #print(meeting)
         meeting_construct = {"date": meeting["date"], "meetingName": meeting["meetingName"], "raceType": None}
         meeting_id = None
         # The historical data from TAB has two nested racelists
         for outer_race in meeting.keys():
-            print("welcome to the outer race.")
-            print(outer_race)
+            #print("welcome to the outer race.")
+            #print(outer_race)
             race_construct = {"meetingID": None, "raceNumber": outer_race}
             race_id = None
             if type(meeting[outer_race]) is dict:
                 for summary_header in meeting[outer_race].keys():
-                    print(meeting[outer_race][summary_header])
-                    print(meeting[outer_race][summary_header].keys())
+                    #print(meeting[outer_race][summary_header])
+                    #print(meeting[outer_race][summary_header].keys())
                     if summary_header == "races":
                         for race in meeting[outer_race][summary_header].keys():
-                            print(meeting[outer_race][summary_header][race])
-                            print(meeting[outer_race][summary_header][race].keys())
+                            #print(meeting[outer_race][summary_header][race])
+                            #print(meeting[outer_race][summary_header][race].keys())
                             # Pass build meeting to the proposition constructor
                             if "meeting" in meeting[outer_race][summary_header][race].keys():
                                 meeting_construct["raceType"] = meeting[outer_race][summary_header][race]["meeting"][
                                     "raceType"]
-                            print(meeting_construct)
+                            # print(meeting_construct)
                             # At this level we have the meeting information
                             if meeting_id is None:
                                 meeting_id = meeting_loader(database_conn, meeting_construct)
@@ -413,16 +424,14 @@ def racesloader(input_file, database_conn):
 
 mydb = mysql.connector.connect(host="localhost",
                                user="chris",
-                               password="",
+                               password="th30bs00",
                                database="racing")
-
-for file in os.listdir('./Scraped_Data/'):
+for file in sorted(os.listdir('./Scraped_Data/'),reverse=True):
     if "historical_data" in file:
-        # print(file)
+        print(file)
         the_file = open("./Scraped_Data/" + file)
         historical_file = json.load(the_file)
         # meetingsloader(historical_file, mydb)
         # racesloader(historical_file, mydb)
         propositionloader(historical_file, mydb)
-    #break
 mydb.close()

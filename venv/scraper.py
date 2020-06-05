@@ -21,10 +21,10 @@ def driver():
             getRaceInfo(meet)"""
     log_file = open('history_scraper_log.txt', 'w')
     log_file.writelines("Beginning the scrape!\n")
-    for single_date in [date.today() - timedelta(x) for x in range(550)]:
+    for single_date in [date.today() - timedelta(x) for x in range(580)]:
         # The try catch will exclude files that already exist
         try:
-            f = open('Scraped_Data/historical_data_' + single_date.isoformat() + '.txt', 'r')
+            f = open('Scraped_Data/Integrated/historical_data_' + single_date.isoformat() + '.txt', 'r')
             print("The file already exists")
             f.close()
             continue

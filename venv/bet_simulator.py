@@ -180,7 +180,7 @@ for i in range(1, 280):
                         totalWinnings += wager[0]
                     elif wager[1] == 'P':
                         # Promos tend to be first few races
-                        if int(raceNo) < 4 and firstwager == 0:
+                        if int(raceNo) < 4:# and firstwager == 0:
                             racebonusbets.append(buildBonus(meeting['meetingName'], raceNo, meeting['date'], wager[0]))
                     print(walletBalance)
                     firstwager = 1
@@ -200,8 +200,8 @@ for i in range(1, 280):
     total_wagerCount += wagerCount
     total_wagerAmt += daily_wagerAmt
     total_wallet += (walletBalance-100.0)
-print(total_winnings)
-print(total_wagerCount)
-print(total_wagerAmt)
-print(total_races)
-print(total_wallet)
+print(total_winnings, " is the total winnings")
+print(total_wagerCount, " is the total winnings")
+print(total_wagerAmt, " is the total winnings")
+print(total_races, " is the total winnings")
+print(total_wallet, " is the total winnings")
