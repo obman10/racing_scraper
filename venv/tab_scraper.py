@@ -14,7 +14,7 @@ class meeting:
         self.meetingID = None
 
     def __str__(self):
-        return "Meeting name is %s, meeting type is %s, meeting date is %s, meetingID is %s"\
+        return "Meeting name is %s, meeting type is %s, meeting date is %s, meetingID is %s" \
                % (self.meetingName, self.meetingType, self.meetingDate, self.meetingID)
 
     def get_ID(self, dbconn):
@@ -24,7 +24,7 @@ class meeting:
                           "AND meetingName = %s"
                           "AND meetingType = %s")
         meeting_cursor.execute(select_meeting, (self.meetingDate, self.meetingName, self.meetingType,))
-        #print(meeting_cursor.rowcount)
+        # print(meeting_cursor.rowcount)
         results = meeting_cursor.fetchall()
         if results:
             for result in results:
@@ -57,8 +57,8 @@ class race:
     def get_ID(self, dbconn):
         race_cursor = dbconn.cursor()
         select_race = ("SELECT raceID FROM race "
-                          "WHERE meetingID = %s"
-                          "AND raceNumber = %s")
+                       "WHERE meetingID = %s"
+                       "AND raceNumber = %s")
         race_cursor.execute(select_race, (self.meetingDate, self.raceNumber))
         # print(meeting_cursor.rowcount)
         results = meeting_cursor.fetchall()
@@ -69,26 +69,62 @@ class race:
             self.meetingID = self.add_meeting(dbconn)
         return self.meetingID
 
+    def add_meeting(self, dbconn):
+        race_cursor = dbconn.cursor()
+        add_race = ()
+
+
+class raceRunner:
+    def __init__(self, raceid, optional={}):
+        self.raceID = raceid
+        for k, v in optional.items():
+            print(k, v)
+            setattr(self, k, v)
+
+
 def consume_races(races, meetingid):
     print(races)
-    for race_obj in races["races"]:
-        race(meetingid, race_obj)
+    print("I started the race consumption")
+    try:
+        for race_obj in races["races"]:
+            race(meetingid, race_obj)
+    except KeyError:
+        print("There is a key error")
+        print("Usually this means that there is only one race captured")
+        race(meetingid, races)
+        print(type(races))
+        print(races)
     return None
+
 
 def consume_futures(race_day, dbconn):
     meetings = []
     for meet in race_day["meetings"]:
+        # TODO Consume the futures
+        if "Futures" in meet["meetingName"]:
+            continue
         print(meet)
         print(meet.keys())
-        new_meet = meeting(meet["meetingName"], meet["raceType"], meet["meetingDate"])
+        # If statement saves unifying records later
+        if "displayMeetingName" in meet.keys():
+            new_meet = meeting(meet["displayMeetingName"].upper(), meet["raceType"], meet["meetingDate"])
+        else:
+            new_meet = meeting(meet["meetingName"].upper(), meet["raceType"], meet["meetingDate"])
         new_meet.get_ID(dbconn)
         meetings.append(new_meet)
         try:
-            #print(meet["_links"])
+            # print(meet["_links"])
             consume_races(json.loads(requests.get(meet["_links"]["races"]).text), new_meet.meetingID)
         except KeyError:
-            print(meet["meetingName"], "didn't seem to have a link onwards")
-        break
+            print(meet["meetingName"], "didn't seem to have a _link onwards")
+            try:
+                for race in meet["races"]:
+                    print(race)
+                    consume_races(json.loads(requests.get(race["_links"]["self"]).text), new_meet.meetingID)
+            except KeyError:
+                print("yo bitch")
+
+        # break
     for meet in meetings:
         print(meet)
     return None
@@ -107,4 +143,4 @@ for race_day in my_json["dates"]:
     r2 = requests.get(url=race_day["_links"]["meetings"])
     print(r2.text)
     consume_futures(json.loads(r2.text), mydb)
-    break
+    # break
